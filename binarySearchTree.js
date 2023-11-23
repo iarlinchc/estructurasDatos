@@ -23,7 +23,7 @@ BinarySearchTree.prototype={
             current = this.root;
             while (true){
                 //si el nuevo valor es menor que el valor del nodo actual, ir a la izq
-                if(value < current.value){
+                if(current && value < current.value){
                     //si no hay rama izquierda, insertar el nodo
                     if(current.left === null){
                         current.left = node;
@@ -31,7 +31,7 @@ BinarySearchTree.prototype={
                     } else {
                         current = current.left;
                     }
-                } else if (value > current.value){
+                } else if (current &&  value > current.value){
                     //si no hay rama derecha, insertar el nodo
                     if (current.rigth === null){
                         current.rigth = node;
