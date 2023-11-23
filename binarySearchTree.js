@@ -1,4 +1,4 @@
-
+//Clase o función base para el árbol binario
 function BinarySearchTree(){
     this.root = null;
 }
@@ -7,6 +7,7 @@ BinarySearchTree.prototype={
     //contructor
     constructor: BinarySearchTree,
 
+    //función para añadir un nodo a un árbol   
     add: function(value){
         //Crea un nuevo nodo y se le asigna un valor
         var node = {
@@ -23,7 +24,7 @@ BinarySearchTree.prototype={
             current = this.root;
             while (true){
                 //si el nuevo valor es menor que el valor del nodo actual, ir a la izq
-                if(current && value < current.value){
+                if(value < current.value){
                     //si no hay rama izquierda, insertar el nodo
                     if(current.left === null){
                         current.left = node;
@@ -31,13 +32,13 @@ BinarySearchTree.prototype={
                     } else {
                         current = current.left;
                     }
-                } else if (current &&  value > current.value){
+                } else if (value > current.value){
                     //si no hay rama derecha, insertar el nodo
                     if (current.rigth === null){
                         current.rigth = node;
                         break;
                     } else {
-                        current = current.rigth;
+                        current = current.right;
                     }
                 } else {
                     break;
@@ -46,6 +47,7 @@ BinarySearchTree.prototype={
         }
     },
 
+    //función para determinar si existe o no un nodo en un árbol
     contains: function(value){
         var found = false;
         current = this.root;
@@ -62,6 +64,7 @@ BinarySearchTree.prototype={
         return found;     
     },
      
+    //Función que realiza el recorrido de un árbol en orden
     traverse: function (process) {
 
         // helper function
@@ -86,7 +89,7 @@ BinarySearchTree.prototype={
         inOrder (this.root);
     },
    
-
+    //función que elimina un nodo de un árbol binario
     remove: function(value){
         var found = false,
             parent = null,
@@ -96,15 +99,15 @@ BinarySearchTree.prototype={
             replacementParent;
 
         // Asegurarse que hay un nodo para buscar
-        while (! found && current) {
+        while (!found && current) {
 
             // si el valor es menor que el nodo actual o current, ir a la izquierda
-            if (value <current.value) {
+            if (value < current.value) {
                 parent = current;
                 current = current.left;
 
             // si el valor es mayor que el nodo actual o current, ir a la derecha
-            } else if (value> current.value) {
+            } else if (value > current.value) {
                 parent = current;
                 current = current.right;
 
@@ -116,6 +119,10 @@ BinarySearchTree.prototype={
 
         // solo ejecutar si el nodo es encontrado!
         // only proceed if the node was found
+        //There are three conditions to be aware of when deleting nodes:
+        //   Leaf node
+        //   Node with only one child
+        //   Node with two children
         if (found) {
 
             // figure out how many children
@@ -125,8 +132,16 @@ BinarySearchTree.prototype={
             // special case: the value is at the root
             if (current === this.root) {
                 switch (childCount) {
+                    // no children, just erase the root
+                    case 0:
+                        this.root = null;
+                        break;
 
-                    // other cases removed to save space
+                    // one child, use one as the root
+                    case 1:
+                        this.root = (current.right === null? 
+                                      current.left: current.right);
+                        break;
 
                     // two children, little work to do
                     case 2:
@@ -140,14 +155,14 @@ BinarySearchTree.prototype={
                         while (replacement.right !== null) {
                             replacementParent = replacement;
                             replacement = replacement.right;
-                        }
+                        }                        
 
                         // it's not the first node on the left
-                        if (replacementParent !== null) {
+                        if (replacementParent != null) {
 
                             // remove the new root from it's 
-                            // previous position
-                            replacementParent.right = replacement.left;
+                            // previous position                      
+                            replacementParent.right= replacement.left;
 
                             // give the new root all of the old 
                             // root's children
@@ -156,22 +171,48 @@ BinarySearchTree.prototype={
                         } else {
 
                             // just assign the children
-                            replacement.right = this.root.right;
+                            replacement.right = this.root.right;                           
                         }
 
                         // officially assign new root
                         this.root = replacement;
-
                     // no default
-
-                }        
-
+                }    
             // non-root values
             } else {
 
                 switch (childCount) {
 
-                    // other cases removed to save space 
+                  // no children, just remove it from the parent
+                    case 0:
+                      // if the current value is less than its 
+                      // parent's, null out the left pointer
+                      if (current.value <parent.value) {
+                        parent.left = null;
+
+                      // if the current value is greater than its
+                      // parent's, null out the right pointer
+                      } else {
+                          parent.right = null;
+                      }
+                      break;
+
+                      // one child, just reassign to parent
+                    case 1:
+                         // if the current value is less than its 
+                         // parent's, reset the left pointer
+                         if (current.value <parent.value) {
+                            parent.left = (current.left === null? 
+                                           current.right: current.left);
+
+                          // if the current value is greater than its 
+                          // parent's, reset the right pointer
+                          } else {
+                                 parent.right = (current.left === null? 
+                                            current.right: current.left);
+                             }
+                         break;    
+
 
                     // two children, a bit more complicated
                     case 2:
@@ -193,11 +234,11 @@ BinarySearchTree.prototype={
                         replacement.left = current.left;
 
                         // place the replacement in the right spot
-                        if (current.value <parent.value) {
+                        if (current.value < parent.value) {
                             parent.left = replacement;
                         } else {
                             parent.right = replacement;
-                        }       
+                        }           
 
                     // no default
                 }
@@ -205,7 +246,7 @@ BinarySearchTree.prototype={
         }        
      },  
 
-
+    //Calcula el tamaño de un árbol binario
     size: function(){
         var length = 0;
 
@@ -216,6 +257,7 @@ BinarySearchTree.prototype={
         return length;
     },
 
+    //Vacía el contenido del árbol binario a un arreglo de tipo pila, acomoda en orden
     toArray: function(){
         var result = [];
 
@@ -226,13 +268,28 @@ BinarySearchTree.prototype={
         return result;
     },   
 
+    //convierte el arreglo con los nodos del árbol en string plano
     toString: function(){
         return this.toArray().toString ();
     }
 };
 
 var tree = new BinarySearchTree();
+console.log("Añadiendo 4 valores al árbol binario: 10, 5, 15, 25 (en desorden)")
 tree.add(10);
 tree.add(5);
 tree.add(15);
-console.log(tree.contains(5));
+tree.add(25);
+console.log("Existe el valor 15 en el árbol?: " + tree.contains(15));
+console.log("Tamaño árbol: " + tree.size());
+console.log("Imprimir el recorrido del árbol en orden: ");
+tree.traverse(function (node) {
+    console.log(node.value);
+});
+console.log("Elimina el nodo 10 del árbol (el  nodo raíz)");
+ tree.remove(10);
+console.log("Tamaño árbol: " + tree.size());
+console.log("Imprimir el recorrido del árbol en orden con un arreglo pila: ");
+console.log(tree.toArray());
+console.log("Imprimir el recorrido del árbol en orden en formato string plano: ");
+console.log(tree.toString());
